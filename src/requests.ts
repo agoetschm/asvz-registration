@@ -6,7 +6,7 @@ export function getRegistrationStartDate({lessonNumber}): Promise<Date> {
       await page.goto('https://schalter.asvz.ch/tn/lessons/' + lessonNumber);
 
       console.log("Trying to get start time...");
-      let raw = await textOf('#eventDetails > div > div.col-sm-4 > div > div.panel-body.event-properties > app-lesson-properties-display > dl:nth-child(4) > dd', page);
+      let raw = await textOf('#eventDetails > div > div.col-sm-4 > div > div.panel-body.event-properties > app-lesson-properties-display > dl:nth-child(11) > dd', page);
       let parsed = dateFromString(raw);
       console.log("Parsed start time: " + parsed);
       return parsed;
