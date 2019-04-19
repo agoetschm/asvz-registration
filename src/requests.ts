@@ -1,9 +1,9 @@
 import puppeteer = require('puppeteer');
 
-export function getRegistrationStartDate({lessonNumber}): Promise<Date> {
+export function getRegistrationStartDate({url}): Promise<Date> {
   return puppeteerExecute((page) =>
     (async () => {
-      await page.goto('https://schalter.asvz.ch/tn/lessons/' + lessonNumber);
+      await page.goto(url);
 
       console.log("Trying to get start time...");
       let raw = await textOf('#eventDetails > div > div.col-sm-4 > div > div.panel-body.event-properties > app-lesson-properties-display > dl:nth-child(11) > dd', page);
@@ -15,13 +15,13 @@ export function getRegistrationStartDate({lessonNumber}): Promise<Date> {
 }
 
 // returns the registering task
-export function registrationTask({lessonNumber}): () => Promise<Boolean> {
+export function registrationTask({url}): () => Promise<Boolean> {
   return () =>
     puppeteerExecute((page) =>
       (async () => {
         console.log('Registering at ' + new Date() + " ...");
 
-        await page.goto('https://schalter.asvz.ch/tn/lessons/' + lessonNumber);
+        await page.goto(url);
         console.log("Reached ASVZ page")
         await click('body > app-root > div > div:nth-child(2) > app-lesson-details > div > div > app-lessons-enrollment-button > button', page);
         // choose auth type
