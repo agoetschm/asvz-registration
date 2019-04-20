@@ -1,3 +1,5 @@
-/built/
+/dist/
+/.cache/
 creds.js
+.env
 node_modules/

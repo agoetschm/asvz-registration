@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ASVZ registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  </head>
+  <body>
+    <div class="container">
+      <div id="app">
+        <h1 class="header">ASVZ registration</h1>
+        <div class="progress" v-bind:class="{ hide: !isLoading }">
+            <div class="indeterminate"></div>
+        </div>
+        <div class="row card-panel red lighten-2" v-bind:class="{ hide: !errorMessage }">{{ errorMessage }}</div>
+
+        <div class="row">
+          <div v-if="hasScheduled" class="col s12 m6">
+            <div v-for="reg in scheduledRegistrations" class="card-panel">
+              <h4>{{ reg.name }}</h4>
+              <p>Registration will start at {{ reg.date }}</p>
+              <button @click="confirmCancelRegistration(reg.name)" class="btn-small">Cancel</button>
+            </div>
+          </div>
+
+          <div class="col s12 m6">
+            <div class="card-panel">
+              <h4>Schedule new registration</h4>
+              <form @submit.prevent="scheduleRegistration">
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input v-model="url" ref="url" id="url" type="text">
+                    <label for="url">URL</label>
+                  </div>
+                </div>
+                <button id="scheduleRegistration" class="btn" type="submit">Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div id="cancelConfirm" ref="cancelConfirm" class="modal">
+          <div class="modal-content">
+            <h6>Cancel registration for {{selectedReg}}</h6>
+          </div>
+          <div class="modal-footer">
+            <button @click="cancelRegistration(selectedReg)" class="modal-close btn-flat">Yes</button>
+            <button class="modal-close btn-flat">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="js/main.js"></script></body>
+</html>
