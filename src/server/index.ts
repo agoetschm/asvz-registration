@@ -26,7 +26,9 @@ export const register = (app: express.Application) => {
     const scheduledRegistrations = [];
     for (const name in schedule.scheduledJobs) {
       const job = schedule.scheduledJobs[name];
-      scheduledRegistrations.push({ name, date: job.nextInvocation() });
+      if (job.nextInvocation() >= new Date()) {
+        scheduledRegistrations.push({ name, date: job.nextInvocation() });
+      }
     }
 
     res.json(scheduledRegistrations);

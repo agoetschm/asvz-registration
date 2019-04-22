@@ -82,8 +82,8 @@ function textOf(selector: string, page: puppeteer.Page): Promise<string> {
 function puppeteerExecute<T>(todo: (page: puppeteer.Page) => Promise<T>): Promise<T> {
   return (async () => {
     const browser = await puppeteer.launch();
-    // let browser = await puppeteer.launch({headless: false});
-    // let browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+    // const browser = await puppeteer.launch({headless: false});
+    // const browser = await puppeteer.launch({executablePath: "/usr/bin/chromium-browser"});
     const page = await browser.newPage();
     // page.setDefaultNavigationTimeout(60000);
 
