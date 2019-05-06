@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
+import fs from "fs";
+import https from "https";
 import passport from "passport";
 import path from "path";
 import * as server from "./server";
@@ -7,6 +9,13 @@ import * as server from "./server";
 dotenv.config();
 const app = express();
 const port = process.env.SERVER_PORT;
+const cert = process.env.TLS_CERT;
+const key = process.env.TLS_KEY;
+
+const options = {
+  cert: fs.readFileSync(cert),
+  key: fs.readFileSync(key)
+};
 
 app.set( "views", path.join( __dirname, "views" ) );
 app.set( "view engine", "ejs" );
@@ -18,6 +27,6 @@ app.use(passport.initialize());
 
 server.register( app );
 
-app.listen( port, () => {
-  console.log( `server started at http://localhost:${ port }` );
+https.createServer(options, app).listen( port, () => {
+  console.log( `server started at https://localhost:${ port }` );
 } );
