@@ -4,6 +4,8 @@ import schedule from "node-schedule";
 import passport from "passport";
 import passportHttp from "passport-http";
 import { scheduleRegistration } from "../engine/main";
+import { checkLogin } from "../engine/requests";
+import { decryptStringWithRsaPrivateKey } from "../shared/crypto";
 
 passport.use(new passportHttp.BasicStrategy(
   (username, password, done) => {
@@ -17,12 +19,12 @@ passport.use(new passportHttp.BasicStrategy(
 passport.serializeUser((user, done) => { done(null, user); });
 passport.deserializeUser((user, done) => { done(null, user); });
 
-export const register = (app: express.Application) => {
+export const register = (app: express.Application, publicKey: string, privateKey: string, passphrase: string) => {
   app.get("/", passport.authenticate("basic"), ( req: any, res ) => {
     res.render("index");
   } );
 
-  app.get("/api/registration/all", (req: any, res) => {
+  app.get("/api/registration/all", passport.authenticate("basic"), (req: any, res) => {
     const scheduledRegistrations = [];
     for (const name in schedule.scheduledJobs) {
       const job = schedule.scheduledJobs[name];
@@ -35,12 +37,18 @@ export const register = (app: express.Application) => {
   });
 
   app.post("/api/registration/add", passport.authenticate("basic"), async (req: any, res, next) => {
+    const password = decryptStringWithRsaPrivateKey(req.body.passwordEnc, privateKey, passphrase);
     try {
-      await scheduleRegistration(req.body.url);
+      const loginOk = await checkLogin(req.body.user, password);
+      if (!loginOk) {
+        throw new Error("failed to login with given credentials");
+      }
+      console.log("login successful");
+      await scheduleRegistration(req.body.url, req.body.user, password);
       return res.json({});
     } catch (err) {
       console.error(err);
-      res.status(500).json( { error: err.message || err } );
+      res.status(500).send( { error: err.message || err } );
     }
   });
 
@@ -54,5 +62,9 @@ export const register = (app: express.Application) => {
       console.error(err);
       res.status(500).json({ error: err.message || err });
     }
+  });
+
+  app.get("/api/publickey", passport.authenticate("basic"), (req: any, res) => {
+    res.json(publicKey);
   });
 };

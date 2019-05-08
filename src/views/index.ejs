@@ -21,7 +21,7 @@
           <div v-if="hasScheduled" class="col s12 m6">
             <div v-for="reg in scheduledRegistrations" class="card-panel">
               <h4>{{ reg.name }}</h4>
-              <p>Registration will start at {{ reg.date }}</p>
+              <p>Registration will start at {{ new Date(reg.date).toLocaleString() }}</p>
               <button @click="confirmCancelRegistration(reg.name)" class="btn-small">Cancel</button>
             </div>
           </div>
@@ -33,7 +33,15 @@
                 <div class="row">
                   <div class="input-field col s12">
                     <input v-model="url" ref="url" id="url" type="text">
-                    <label for="url">URL</label>
+                    <label for="url">ASVZ lesson URL</label>
+                  </div>
+                  <div class="input-field col s12">
+                    <input v-model="user" ref="user" id="user" type="text">
+                    <label for="url">NETHZ user</label>
+                  </div>
+                  <div class="input-field col s12">
+                    <input v-model="password" ref="password" id="password" type="password">
+                    <label for="url">NETHZ password</label>
                   </div>
                 </div>
                 <button id="scheduleRegistration" class="btn" type="submit">Add</button>

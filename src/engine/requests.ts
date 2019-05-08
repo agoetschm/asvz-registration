@@ -1,5 +1,38 @@
 import puppeteer from "puppeteer";
 
+export function checkLogin(user: string, password: string): Promise<boolean> {
+    return puppeteerExecute(async (page) => {
+        console.log("Checking login for user " + user);
+
+        await page.goto("https://schalter.asvz.ch");
+        // choose auth type
+        await page.waitForNavigation();
+        await click("#switch-aai > div.panel-body > div > form > div > p > button", page);
+        // choose eth from list
+        await page.waitForNavigation();
+        await click("#userIdPSelection_iddwrap", page);
+        await click("#userIdPSelection_iddlist > div:nth-child(5)", page);
+        // authenticate
+        await page.waitForNavigation();
+        console.log("Reached login page");
+        await page.focus("#username");
+        await page.keyboard.type(user);
+        await page.waitFor(200);
+        await page.focus("#password");
+        await page.keyboard.type(password);
+        await page.waitFor(200);
+        await click("#LoginButtonText", page);
+        // await page.waitForNavigation();
+        await page.waitFor(3000);
+        // TODO wait better...
+        // await page.waitForSelector(`body > app-root > div > div:nth-child(1)
+        //     > app-navigation-bar > div > div > div.navbar-header > a > img`);
+        const loggedIn = await page.$(`body > app-root > div > div:nth-child(1)
+            > app-navigation-bar > div > div > div.navbar-header > a > img`);
+        return loggedIn != null;
+      });
+}
+
 export function registrationNameAndStartDate({url}): Promise<[string, Date]> {
   return puppeteerExecute((page) =>
     (async () => {
@@ -21,7 +54,7 @@ export function registrationNameAndStartDate({url}): Promise<[string, Date]> {
 }
 
 // returns the registering task
-export function registrationTask({url}): () => Promise<boolean> {
+export function registrationTask({url, user, password}): () => Promise<boolean> {
   return () =>
     puppeteerExecute((page) =>
       (async () => {
@@ -41,12 +74,11 @@ export function registrationTask({url}): () => Promise<boolean> {
         // authenticate
         await page.waitForNavigation();
         console.log("Reached login page");
-        const CREDS = require("./creds");
         await page.focus("#username");
-        await page.keyboard.type(CREDS.username);
+        await page.keyboard.type(user);
         await page.waitFor(200);
         await page.focus("#password");
-        await page.keyboard.type(CREDS.password);
+        await page.keyboard.type(password);
         await page.waitFor(200);
         await click("#LoginButtonText", page);
 
@@ -88,6 +120,8 @@ function puppeteerExecute<T>(todo: (page: puppeteer.Page) => Promise<T>): Promis
     // page.setDefaultNavigationTimeout(60000);
 
     const ret: T = await todo(page);
+
+    // await new Promise((resolve) => setTimeout(resolve, 30000));
 
     await browser.close();
     return ret;
